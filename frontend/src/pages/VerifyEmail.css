@@ -1,0 +1,59 @@
+
+.verify-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.verify-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 36px;
+  border: 1px solid #30343d;
+  border-radius: 16px;
+  background: #17191f;
+  text-align: center;
+}
+
+.verify-eyebrow {
+  display: inline-block;
+  margin-bottom: 18px;
+  color: #a5b4fc;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.verify-card h1 {
+  margin: 0 0 16px;
+  color: #f3f4f6;
+  font-size: 28px;
+}
+
+.verify-card p {
+  color: #c5c9d2;
+  line-height: 1.6;
+}
+
+.verify-card .verify-error {
+  color: #fca5a5;
+}
+
+.verify-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: #a5b4fc;
+  text-decoration: none;
+}
+
+.verify-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .verify-card {
+    padding: 26px 20px;
+  }
+}

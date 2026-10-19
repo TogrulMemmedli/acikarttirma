@@ -15,9 +15,12 @@ from models.User import User
 from Schemas.User import UserCreate, UsernameUpdate, PasswordChange
 from datetime import datetime, timedelta, timezone
 
+
 from models.EmailVerification import EmailVerification
 from config.email import send_email
-
+from fastapi.responses import RedirectResponse
+from fastapi import Body
+from config.settings import settings
 
 from pydantic import EmailStr
 
@@ -65,7 +68,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     verification_link = (
-        f"http://127.0.0.1:8000/auth/verify-email?token={token}"
+        f"{settings.frontend_url}/verify-email#token={token}"
     )
 
     try:
@@ -240,8 +243,12 @@ def change_password(
     return {"message": "Password changed successfully"}
 
 
-@router.get("/verify-email")
-def verify_email(token: str, db: Session = Depends(get_db)):
+
+@router.post("/verify-email")
+def verify_email(
+    token: str = Body(..., embed=True),
+    db: Session = Depends(get_db),
+):
     token_hash = hash_email_verification_token(token)
 
     verification = db.query(EmailVerification).filter(
@@ -257,7 +264,6 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     now = datetime.now(timezone.utc)
     expires_at = verification.expires_at
 
-    # SQLite timezone məlumatını itirə bilər.
     if expires_at.tzinfo is None:
         expires_at = expires_at.replace(tzinfo=timezone.utc)
 
@@ -285,8 +291,12 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     db.delete(verification)
     db.commit()
 
+    access_token = create_access_token(user.id)
+
     return {
-        "message": "E-poçt uğurla təsdiqləndi. İndi daxil ola bilərsən."
+        "message": "E-poçt uğurla təsdiqləndi.",
+        "access_token": access_token,
+        "token_type": "bearer",
     }
 
 
@@ -350,9 +360,8 @@ def resend_verification(
     db.commit()
 
     verification_link = (
-        f"http://127.0.0.1:8000/auth/verify-email?token={token}"
+        f"{settings.frontend_url}/verify-email?token={token}"
     )
-
     try:
         send_email(
             to=user.email,
